@@ -1,0 +1,44 @@
+# these are the Gentoo Linux specific build functions
+FOUND_GTK3=$(ls /usr/lib64/libgtk-3.so.* 2>/dev/null | tail -n 1 || true)
+
+# Addtional Dev packages for OrcaSlicer
+export REQUIRED_DEV_PACKAGES=(
+    cmake
+    curl
+    dbus
+    eglexternalplatform
+    extra-cmake-modules
+    file
+    gettext
+    git
+    glew
+    gstreamer
+    gstreamermm
+    gtk
+    libmspack
+    libsecret
+    mesa
+    ninja
+    openssl
+    texinfo
+    wayland-protocols
+    webkit-gtk
+    wget
+)
+
+if [[ -n "$UPDATE_LIB" ]]
+then
+    echo -n -e "Updating linux ...\n"
+    NEEDED_PKGS=""
+    for PKG in ${REQUIRED_DEV_PACKAGES[@]}; do
+        sudo equery --quiet list ${PKG} > /dev/null || NEEDED_PKGS+=" ${PKG}"
+    done
+
+    if [ -n "${NEEDED_PKGS}" ]; then
+        sudo emerge -a ${NEEDED_PKGS}
+    fi
+    echo -e "done\n"
+    exit 0
+fi
+
+FOUND_GTK3_DEV=${FOUND_GTK3}
