@@ -576,7 +576,7 @@ void MediaPlayCtrl::onStateChanged(wxMediaEvent &event)
         wxSize size = m_media_ctrl->GetVideoSize();
         BOOST_LOG_TRIVIAL(info) << "MediaPlayCtrl::onStateChanged: size: " << size.x << "x" << size.y;
         m_failed_code = m_media_ctrl->GetLastError();
-        if (size.GetWidth() >= 320) {
+        if (m_failed_code == 0) {
             m_last_state = state;
             m_failed_code = 0;
             SetStatus(_L("Playing..."), false);
