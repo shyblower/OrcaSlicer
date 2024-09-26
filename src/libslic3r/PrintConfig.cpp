@@ -3348,6 +3348,15 @@ void PrintConfigDef::init_fff_params()
     def->mode = comAdvanced;
     def->set_default_value(new ConfigOptionInt(3));
 
+    def = this->add("max_acceleration_and_jerk_from_pa", coBool);
+    def->label = L("Max acceleration and jerk from pressure advance");
+    def->tooltip = L("Calculate the upper acceleration and jerk limits from pressure advance\n\n"
+              "This ensures that the pressure advance algorithm has enough time to compensate for filament compression "
+              "when high K values have to be used for flexible filaments.\n\n"
+              "It also helps to mitigate extruder clogs with flexible filaments");
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionBool(false));
+
     def = this->add("fan_min_speed", coFloats);
     def->label = L("Fan speed");
     def->tooltip = L("Minimum speed for part cooling fan");
