@@ -6670,7 +6670,7 @@ unsigned int GCode::accel_from_pa(double pa, unsigned int max_accel) const {
 }
 
 double GCode::jerk_from_pa(double pa, double max_jerk) const {
-  return pa == 0.0 ? max_jerk : std::min(max_jerk, 1.0/(30*pa)+1940.0/(190*pow(pa, 2)+260));
+  return pa == 0.0 ? max_jerk : std::min(max_jerk, 1.0/(30*pa)+194.0/(19*pow(pa, 2)+26));
 }
 
 unsigned int GCode::calc_accel(unsigned int acceleration) const {
