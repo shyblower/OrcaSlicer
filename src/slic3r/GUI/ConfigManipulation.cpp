@@ -559,6 +559,8 @@ void ConfigManipulation::toggle_print_fff_options(DynamicPrintConfig *config, co
     for (auto el : { "outer_wall_jerk", "inner_wall_jerk", "initial_layer_jerk", "top_surface_jerk","travel_jerk", "infill_jerk"})
         toggle_field(el, have_default_jerk);
     
+    toggle_field("max_acceleration_and_jerk_from_pa", have_default_acceleration && have_default_jerk);
+
     bool have_skirt = config->opt_int("skirt_loops") > 0;
     toggle_field("skirt_height", have_skirt && config->opt_enum<DraftShield>("draft_shield") != dsEnabled);
     for (auto el : {"skirt_type", "skirt_distance", "skirt_start_angle", "draft_shield"})

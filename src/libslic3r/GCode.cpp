@@ -2438,12 +2438,12 @@ void GCode::_do_export(Print& print, GCodeOutputStream &file, ThumbnailsGenerato
     if (print.calib_params().mode == CalibMode::Calib_PA_Line) {
         std::string gcode;
         if ((print.default_object_config().outer_wall_acceleration.value > 0 && print.default_object_config().outer_wall_acceleration.value > 0)) {
-            gcode += m_writer.set_print_acceleration((unsigned int)floor(print.default_object_config().outer_wall_acceleration.value + 0.5));
+            gcode += set_print_acceleration((unsigned int)floor(print.default_object_config().outer_wall_acceleration.value + 0.5));
         }
 
         if (print.default_object_config().outer_wall_jerk.value > 0) {
             double jerk = print.default_object_config().outer_wall_jerk.value;
-            gcode += m_writer.set_jerk_xy(jerk);
+            gcode += set_print_jerk_xy(jerk);
         }
 
         auto params = print.calib_params();
@@ -3404,7 +3404,7 @@ namespace Skirt {
         // Heights (print_z) at which the skirt has already been extruded.
         std::vector<coordf_t>			    	&skirt_done)
     {
-        // Extrude skirt at the print_z of the raft layers and normal object layers
+        // Extrude skirt at the print_z of the raft layemachine_max_jerk_xrs and normal object layers
         // not at the print_z of the interlaced support material layers.
         std::map<unsigned int, std::pair<size_t, size_t>> skirt_loops_per_extruder_out;
         if (print.has_skirt() && ! skirt.entities.empty() && layer_tools.has_skirt &&
@@ -3730,15 +3730,14 @@ LayerResult GCode::process_layer(
 
     //BBS
     if (first_layer) {
-        // Orca: we don't need to optimize the Klipper as only set once
-        if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
-            gcode += m_writer.set_print_acceleration((unsigned int)floor(m_config.initial_layer_acceleration.value + 0.5));
-        }
-
-        if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
-            gcode += m_writer.set_jerk_xy(m_config.initial_layer_jerk.value);
-        }
-
+      // Orca: we don't need to optimize the Klipper as only set once
+      if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
+        gcode += set_print_acceleration((unsigned int) floor(m_config.initial_layer_acceleration.value + 0.5));
+      }
+      
+      if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
+        gcode += set_print_jerk_xy(m_config.initial_layer_jerk.value);
+      }
     }
 
     if (! first_layer && ! m_second_layer_things_done) {
@@ -3759,31 +3758,30 @@ LayerResult GCode::process_layer(
       }
       // Reset acceleration at sencond layer
       // Orca: only set once, don't need to call set_accel_and_jerk
-      if (m_config.default_acceleration.value > 0 && m_config.initial_layer_acceleration.value > 0) {
-        gcode += m_writer.set_print_acceleration((unsigned int) floor(m_config.default_acceleration.value + 0.5));
+      if (m_config.default_acceleration.value > 0) {
+        gcode += set_print_acceleration((unsigned int) floor(m_config.default_acceleration.value + 0.5));
+      }
+      if (m_config.default_jerk.value > 0) {
+        gcode += set_print_jerk_xy(m_config.default_jerk.value);
       }
 
-      if (m_config.default_jerk.value > 0 && m_config.initial_layer_jerk.value > 0) {
-        gcode += m_writer.set_jerk_xy(m_config.default_jerk.value);
+      // Transition from 1st to 2nd layer. Adjust nozzle temperatures as prescribed by the nozzle dependent
+      // nozzle_temperature_initial_layer vs. accelerationtemperature settings.
+      for (const Extruder &extruder : m_writer.extruders()) {
+          if ((print.config().single_extruder_multi_material.value || m_ooze_prevention.enable) &&
+              extruder.id() != m_writer.extruder()->id())
+              // In single extruder multi material mode, set the temperature for the current extruder only.
+              continue;
+          int temperature = print.config().nozzle_temperature.get_at(extruder.id());
+          if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id()))
+              gcode += m_writer.set_temperature(temperature, false, extruder.id());
       }
 
-        // Transition from 1st to 2nd layer. Adjust nozzle temperatures as prescribed by the nozzle dependent
-        // nozzle_temperature_initial_layer vs. temperature settings.
-        for (const Extruder &extruder : m_writer.extruders()) {
-            if ((print.config().single_extruder_multi_material.value || m_ooze_prevention.enable) &&
-                extruder.id() != m_writer.extruder()->id())
-                // In single extruder multi material mode, set the temperature for the current extruder only.
-                continue;
-            int temperature = print.config().nozzle_temperature.get_at(extruder.id());
-            if (temperature > 0 && temperature != print.config().nozzle_temperature_initial_layer.get_at(extruder.id()))
-                gcode += m_writer.set_temperature(temperature, false, extruder.id());
-        }
-
-        // BBS
-        int bed_temp = get_bed_temperature(first_extruder_id, false, print.config().curr_bed_type);
-        gcode += m_writer.set_bed_temperature(bed_temp);
-        // Mark the temperature transition from 1st to 2nd layer to be finished.
-        m_second_layer_things_done = true;
+      // BBS
+      int bed_temp = get_bed_temperature(first_extruder_id, false, print.config().curr_bed_type);
+      gcode += m_writer.set_bed_temperature(bed_temp);
+      // Mark the temperature transition from 1st to 2nd layer to be finished.
+      m_second_layer_things_done = true;
     }
 
     if (single_object_instance_idx == size_t(-1)) {
@@ -3951,7 +3949,7 @@ LayerResult GCode::process_layer(
                 const LayerRegion *layerm = layer.regions()[region_id];
                 if (layerm == nullptr)
                     continue;
-                // PrintObjects own the PrintRegions, thus the pointer to PrintRegion would be unique to a PrintObject, they would not
+                // PrintObjects own the PrintRegions, thus the pointer set_print_accelerationto PrintRegion would be unique to a PrintObject, they would not
                 // identify the content of PrintRegion accross the whole print uniquely. Translate to a Print specific PrintRegion.
                 const PrintRegion &region = print.get_print_region(layerm->region().print_region_id());
 
@@ -5168,14 +5166,13 @@ std::string GCode::_extrude(const ExtrusionPath &path, std::string description, 
     }
 
     if (m_writer.get_gcode_flavor() == gcfKlipper) {
-        gcode += m_writer.set_accel_and_jerk(acceleration_i, jerk);
-
+      gcode += set_print_accel_and_jerk(acceleration_i, jerk);
     } else {
-        gcode += m_writer.set_print_acceleration(acceleration_i);
-        gcode += m_writer.set_jerk_xy(jerk);
+      gcode += set_print_acceleration(acceleration_i);
+      gcode += set_print_jerk_xy(jerk);
     }
 
-    // calculate extrusion length per distance unit
+    // calculate extrusion length per distance unitset_print_accel
     auto _mm3_per_mm = path.mm3_per_mm * this->config().print_flow_ratio;
     if (path.role() == erTopSolidInfill)
         _mm3_per_mm *= m_config.top_solid_infill_flow_ratio;
@@ -6667,6 +6664,44 @@ void GCode::ObjectByExtruder::Island::Region::append(const Type type, const Extr
     }
 }
 
+
+unsigned int GCode::accel_from_pa(double pa, unsigned int max_accel) const {
+  return pa == 0.0 ? max_accel : std::min(max_accel, (unsigned int) floor((9.0/pow(pa, 2)+2000.0/(5*pa+4))+0.5));
+}
+
+double GCode::jerk_from_pa(double pa, double max_jerk) const {
+  return pa == 0.0 ? max_jerk : std::min(max_jerk, 1.0/(30*pa)+1940.0/(190*pow(pa, 2)+260));
+}
+
+unsigned int GCode::calc_accel(unsigned int acceleration) const {
+  return max_acceleration_and_jerk_from_pa() ?
+    accel_from_pa(
+      m_config.pressure_advance.get_at(m_writer.extruder()->id()),
+      acceleration > 0 ? acceleration : (unsigned int) (floor(m_config.default_acceleration.value) + 0.5)
+    ) :
+    acceleration;
+}
+
+double GCode::calc_jerk(double jerk) const {
+  return max_acceleration_and_jerk_from_pa() ?
+    jerk_from_pa(
+      m_config.pressure_advance.get_at(m_writer.extruder()->id()),
+      jerk > 0 ? jerk : m_config.default_jerk.value
+    ) :
+    jerk;
+}
+
+std::string GCode::set_print_acceleration(unsigned int acceleration) {
+  return m_writer.set_print_acceleration(calc_accel(acceleration));
+}
+
+std::string GCode::set_print_jerk_xy(double jerk) {
+  return m_writer.set_jerk_xy(calc_jerk(jerk));
+}
+
+std::string GCode::set_print_accel_and_jerk(unsigned int acceleration, double jerk) {
+  return m_writer.set_accel_and_jerk(calc_accel(acceleration), calc_jerk(jerk));
+}
 
 // Index into std::vector<LayerToPrint>, which contains Object and Support layers for the current print_z, collected for
 // a single object, or for possibly multiple objects with multiple instances.

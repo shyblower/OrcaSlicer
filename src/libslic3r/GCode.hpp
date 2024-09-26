@@ -615,6 +615,21 @@ private:
     // To control print speed of 1st object layer over raft interface.
     bool                                object_layer_over_raft() const { return m_object_layer_over_raft; }
 
+    // calculate acceleration based on pressure advance
+    unsigned int accel_from_pa(double pa, unsigned int max_accel) const;
+    // calculate jerk based on pressure advance
+    double jerk_from_pa(double pa, double max_jerk) const;
+
+    bool max_acceleration_and_jerk_from_pa() const { return m_config.max_acceleration_and_jerk_from_pa && m_config.default_acceleration.value > 0 && m_config.default_jerk.value > 0; };
+    
+    unsigned int calc_accel(unsigned int acceleration) const;
+    double calc_jerk(double jerk) const;
+
+    // to modify acceleration and jerk values before calling into GCodeWriter
+    std::string set_print_acceleration(unsigned int acceleration);
+    std::string set_print_jerk_xy(double jerk);
+    std::string set_print_accel_and_jerk(unsigned int acceleration, double jerk);
+
     friend ObjectByExtruder& object_by_extruder(
         std::map<unsigned int, std::vector<ObjectByExtruder>> &by_extruder,
         unsigned int                                           extruder_id,
