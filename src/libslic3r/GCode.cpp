@@ -6670,11 +6670,11 @@ void GCode::ObjectByExtruder::Island::Region::append(const Type type, const Extr
 
 
 unsigned int GCode::accel_from_pa(double pa, unsigned int max_accel) const {
-  return pa == 0.0 ? max_accel : std::min(max_accel, (unsigned int) floor((9.0/pow(pa, 2)+2000.0/(5*pa+4))+0.5));
+  return pa == 0.0 ? max_accel : std::min(max_accel, (unsigned int) floor((5.0/pow(pa, 2)+4000.0/(5*pa+5))+0.5));
 }
 
 double GCode::jerk_from_pa(double pa, double max_jerk) const {
-  return pa == 0.0 ? max_jerk : std::min(max_jerk, 1.0/(30*pa)+194.0/(19*pow(pa, 2)+26));
+  return pa == 0.0 ? max_jerk : std::min(max_jerk, 1.0/(30*pa)+200.0/(9*pow(pa, 3)+26));
 }
 
 unsigned int GCode::calc_accel(unsigned int acceleration) const {
