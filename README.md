@@ -1,3 +1,5 @@
+### For a complete descripion of additional features and fixes, on top of stock OrcaSlicer look here:
+https://github.com/shyblower/OrcaSlicer/wiki
 
 <h1> <p "font-size:200px;"><img align="left" src="https://github.com/KDW06/OrcaSlicer/blob/main/resources/images/OrcaSlicer.ico" width="100"> Orca Slicer</p> </h1>
 
