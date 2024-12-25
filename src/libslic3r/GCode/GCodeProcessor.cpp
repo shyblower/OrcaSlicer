@@ -69,8 +69,7 @@ const std::vector<std::string> GCodeProcessor::Reserved_Tags = {
     " MANUAL_TOOL_CHANGE ",
     "_DURING_PRINT_EXHAUST_FAN",
     " WIPE_TOWER_START",
-    " WIPE_TOWER_END",
-    " PA_CHANGE:"
+    " WIPE_TOWER_END"
 };
 
 const std::vector<std::string> GCodeProcessor::Reserved_Tags_compatible = {
@@ -90,8 +89,7 @@ const std::vector<std::string> GCodeProcessor::Reserved_Tags_compatible = {
     " MANUAL_TOOL_CHANGE ",
     "_DURING_PRINT_EXHAUST_FAN",
     " WIPE_TOWER_START",
-    " WIPE_TOWER_END",
-    " PA_CHANGE:"
+    " WIPE_TOWER_END"
 };
 
 

@@ -293,7 +293,6 @@ class Print;
             During_Print_Exhaust_Fan,
             Wipe_Tower_Start,
             Wipe_Tower_End,
-            PA_Change,
         };
 
         static const std::string& reserved_tag(ETags tag) { return s_IsBBLPrinter ? Reserved_Tags[static_cast<unsigned char>(tag)] : Reserved_Tags_compatible[static_cast<unsigned char>(tag)]; }

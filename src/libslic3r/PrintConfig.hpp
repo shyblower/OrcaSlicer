@@ -1059,12 +1059,6 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionFloats,              filament_flow_ratio))
     ((ConfigOptionBools,               enable_pressure_advance))
     ((ConfigOptionFloats,              pressure_advance))
-    // Orca: adaptive pressure advance and calibration model
-    ((ConfigOptionBools,                adaptive_pressure_advance))
-    ((ConfigOptionBools,                adaptive_pressure_advance_overhangs))
-    ((ConfigOptionStrings,             adaptive_pressure_advance_model))
-    ((ConfigOptionFloats,              adaptive_pressure_advance_bridges))
-    //
     ((ConfigOptionFloat,               fan_kickstart))
     ((ConfigOptionFloat,               fan_speedup_time))
     ((ConfigOptionFloats,              filament_diameter))
