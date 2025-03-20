@@ -4399,7 +4399,6 @@ LayerResult GCode::process_layer(
     if (!has_wipe_tower && need_insert_timelapse_gcode_for_traditional && !has_insert_timelapse_gcode) {
         if (m_support_traditional_timelapse)
             m_support_traditional_timelapse = false;
-.zed/settings.json
         gcode += this->retract(false, false, LiftType::NormalLift);
         m_writer.add_object_change_labels(gcode);
 
