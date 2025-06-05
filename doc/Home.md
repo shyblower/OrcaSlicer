@@ -12,6 +12,7 @@ The below sections provide a detailed settings explanation as well as tips and t
 - [Line Width Settings](quality_settings_line_width)
 - [Seam Settings](quality_settings_seam)
 - [Precise wall](Precise-wall)
+- [STL Transformation](stl-transformation)
 
 ### Speed Settings
 - [Extrusion rate smoothing](extrusion-rate-smoothing)
@@ -37,3 +38,4 @@ The guide below takes you through the key calibration tests in Orca - flow rate,
 - [Localization and translation guide](Localization_guide)
 - [Developer Reference](https://github.com/SoftFever/OrcaSlicer/blob/main/doc/developer-reference/Home.md)
 - [How to create profiles](./How-to-create-profiles)
+- [How to validate profiles](./How-to-validate-profiles)

@@ -899,13 +899,18 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionFloat,              initial_layer_jerk))
     ((ConfigOptionFloat,              travel_jerk))
     ((ConfigOptionBool,               precise_z_height))
-
+    ((ConfigOptionFloat,              default_junction_deviation))
+        
     ((ConfigOptionBool, interlocking_beam))
     ((ConfigOptionFloat,interlocking_beam_width))
     ((ConfigOptionFloat,interlocking_orientation))
     ((ConfigOptionInt,  interlocking_beam_layer_count))
     ((ConfigOptionInt,  interlocking_depth))
     ((ConfigOptionInt,  interlocking_boundary_avoidance))
+
+    // Orca: internal use only
+    ((ConfigOptionBool,  calib_flowrate_topinfill_special_order)) // ORCA: special flag for flow rate calibration
+
 
 )
 
@@ -1066,6 +1071,8 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionFloats,               machine_max_jerk_y))
     ((ConfigOptionFloats,               machine_max_jerk_z))
     ((ConfigOptionFloats,               machine_max_jerk_e))
+    // M205 J... [mm]
+    ((ConfigOptionFloats,               machine_max_junction_deviation))
     // M205 T... [mm/sec]
     ((ConfigOptionFloats,               machine_min_travel_rate))
     // M205 S... [mm/sec]
@@ -1733,6 +1740,7 @@ bool is_XL_printer(const PrintConfig &cfg);
 Points get_bed_shape(const DynamicPrintConfig &cfg);
 Points get_bed_shape(const PrintConfig &cfg);
 Points get_bed_shape(const SLAPrinterConfig &cfg);
+Slic3r::Polygons get_bed_excluded_area(const PrintConfig& cfg);
 Slic3r::Polygon get_bed_shape_with_excluded_area(const PrintConfig& cfg);
 bool has_skirt(const DynamicPrintConfig& cfg);
 float get_real_skirt_dist(const DynamicPrintConfig& cfg);
